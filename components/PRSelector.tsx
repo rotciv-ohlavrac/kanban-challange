@@ -21,12 +21,33 @@ export const PRSelector: React.FC<PRSelectorProps> = ({
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newPRTitle, setNewPRTitle] = useState("");
   const [newPRBranch, setNewPRBranch] = useState("");
+  const [branches, setBranches] = useState<string[]>([]);
+  const [loadingBranches, setLoadingBranches] = useState(false);
+  const [showBranchDropdown, setShowBranchDropdown] = useState(false);
+  const [creatingPR, setCreatingPR] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
 
-  const githubService = new UnifiedGitHubService();
+  const githubService = UnifiedGitHubService.getInstance();
 
   useEffect(() => {
     loadPRs();
   }, []);
+
+  const loadBranches = async () => {
+    setLoadingBranches(true);
+    try {
+      console.log("🌿 Carregando branches do repositório...");
+      const branchList = await githubService.getBranches();
+      console.log("✅ Branches carregadas:", branchList);
+      setBranches(branchList);
+    } catch (error) {
+      console.error("❌ Erro ao carregar branches:", error);
+      // Fallback para branches padrão
+      setBranches(["main", "develop", "feature/nova-funcionalidade"]);
+    } finally {
+      setLoadingBranches(false);
+    }
+  };
 
   const loadPRs = async () => {
     setLoading(true);
@@ -61,20 +82,33 @@ export const PRSelector: React.FC<PRSelectorProps> = ({
   const handleCreatePR = async () => {
     if (!newPRTitle.trim() || !newPRBranch.trim()) return;
 
+    setCreatingPR(true);
+    setCreateError(null);
+
     try {
+      console.log("🚀 Criando PR:", { title: newPRTitle, branch: newPRBranch });
+
       const newPR = await githubService.createPR({
         title: newPRTitle,
         branch: newPRBranch,
       });
+
+      console.log("✅ PR criado com sucesso:", newPR);
 
       onPRSelect(newPR);
       onCreatePR?.({ title: newPRTitle, branch: newPRBranch });
       setShowCreateForm(false);
       setNewPRTitle("");
       setNewPRBranch("");
+      setShowBranchDropdown(false);
       loadPRs();
     } catch (error) {
-      console.error("Erro ao criar PR:", error);
+      console.error("❌ Erro ao criar PR:", error);
+      setCreateError(
+        error instanceof Error ? error.message : "Erro desconhecido ao criar PR"
+      );
+    } finally {
+      setCreatingPR(false);
     }
   };
 
@@ -142,7 +176,12 @@ export const PRSelector: React.FC<PRSelectorProps> = ({
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               />
               <button
-                onClick={() => setShowCreateForm(!showCreateForm)}
+                onClick={() => {
+                  setShowCreateForm(!showCreateForm);
+                  if (!showCreateForm) {
+                    loadBranches();
+                  }
+                }}
                 className="px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors text-sm"
               >
                 + Novo PR
@@ -162,26 +201,84 @@ export const PRSelector: React.FC<PRSelectorProps> = ({
                     onChange={(e) => setNewPRTitle(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
                   />
-                  <input
-                    type="text"
-                    placeholder="Nome da branch (ex: feature/nova-funcionalidade)"
-                    value={newPRBranch}
-                    onChange={(e) => setNewPRBranch(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
-                  />
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="Nome da branch (ex: feature/nova-funcionalidade)"
+                      value={newPRBranch}
+                      onChange={(e) => setNewPRBranch(e.target.value)}
+                      onFocus={() => setShowBranchDropdown(true)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
+                    />
+
+                    {showBranchDropdown && (
+                      <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-40 overflow-y-auto">
+                        {loadingBranches ? (
+                          <div className="p-2 text-center text-gray-500 text-sm">
+                            Carregando branches...
+                          </div>
+                        ) : branches.length > 0 ? (
+                          <>
+                            <div className="p-2 text-xs text-gray-500 border-b">
+                              Selecione uma branch:
+                            </div>
+                            {branches
+                              .filter((branch) =>
+                                branch
+                                  .toLowerCase()
+                                  .includes(newPRBranch.toLowerCase())
+                              )
+                              .map((branch) => (
+                                <div
+                                  key={branch}
+                                  onClick={() => {
+                                    setNewPRBranch(branch);
+                                    setShowBranchDropdown(false);
+                                  }}
+                                  className="p-2 hover:bg-gray-100 cursor-pointer text-sm"
+                                >
+                                  {branch}
+                                </div>
+                              ))}
+                          </>
+                        ) : (
+                          <div className="p-2 text-center text-gray-500 text-sm">
+                            Nenhuma branch encontrada
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {createError && (
+                    <div className="p-2 bg-red-50 border border-red-200 rounded-md">
+                      <p className="text-sm text-red-600">❌ {createError}</p>
+                    </div>
+                  )}
+
                   <div className="flex gap-2">
                     <button
                       onClick={handleCreatePR}
-                      disabled={!newPRTitle.trim() || !newPRBranch.trim()}
-                      className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors text-sm disabled:bg-gray-400"
+                      disabled={
+                        !newPRTitle.trim() || !newPRBranch.trim() || creatingPR
+                      }
+                      className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors text-sm disabled:bg-gray-400 flex items-center gap-1"
                     >
-                      Criar
+                      {creatingPR ? (
+                        <>
+                          <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin"></div>
+                          Criando...
+                        </>
+                      ) : (
+                        "Criar PR"
+                      )}
                     </button>
                     <button
                       onClick={() => {
                         setShowCreateForm(false);
                         setNewPRTitle("");
                         setNewPRBranch("");
+                        setShowBranchDropdown(false);
                       }}
                       className="px-3 py-1 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors text-sm"
                     >

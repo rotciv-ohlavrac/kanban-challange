@@ -9,6 +9,7 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
+  closestCenter,
 } from "@dnd-kit/core";
 import { useTranslations } from "next-intl";
 import { Task, TaskStatus } from "../types";
@@ -80,12 +81,49 @@ export const KanbanBoard: React.FC = () => {
 
     setActiveTask(null);
 
-    if (!over) return;
+    if (!over) {
+      // Se a tarefa foi solta fora das colunas, não fazemos nada
+      // A tarefa permanece em sua posição original
+      return;
+    }
 
     const taskId = active.id as string;
-    const newStatus = over.id as TaskStatus;
+    const overId = over.id as string;
 
-    moveTask(taskId, newStatus);
+    // Verificar se o destino é uma coluna válida
+    const validStatuses = [
+      TaskStatus.BACKLOG,
+      TaskStatus.IN_PROGRESS,
+      TaskStatus.COMPLETED,
+    ];
+    let targetStatus: TaskStatus | null = null;
+
+    // Se foi solto diretamente sobre uma coluna
+    if (validStatuses.includes(overId as TaskStatus)) {
+      targetStatus = overId as TaskStatus;
+    } else {
+      // Se foi solto sobre uma tarefa, encontrar a coluna da tarefa de destino
+      const targetTask = tasks.find((task) => task.id === overId);
+      if (targetTask) {
+        targetStatus = targetTask.status;
+      }
+    }
+
+    if (targetStatus) {
+      // Só mover se o status for diferente do atual
+      const currentTask = tasks.find((task) => task.id === taskId);
+      if (currentTask && currentTask.status !== targetStatus) {
+        moveTask(taskId, targetStatus);
+        const statusName =
+          targetStatus === TaskStatus.BACKLOG
+            ? "Backlog"
+            : targetStatus === TaskStatus.IN_PROGRESS
+            ? "Em andamento"
+            : "Concluída";
+        announce(`Tarefa "${currentTask.title}" movida para ${statusName}`);
+      }
+    }
+    // Se não conseguiu determinar o destino, a tarefa permanece na posição original
   };
 
   const handleTaskClick = (task: Task) => {
@@ -243,6 +281,7 @@ export const KanbanBoard: React.FC = () => {
 
           <DndContext
             sensors={sensors}
+            collisionDetection={closestCenter}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
           >
@@ -273,7 +312,7 @@ export const KanbanBoard: React.FC = () => {
 
             <DragOverlay>
               {activeTask ? (
-                <div className="rotate-3 opacity-90">
+                <div className="rotate-3 opacity-90 scale-105 shadow-2xl">
                   <TaskCard task={activeTask} onClick={() => {}} />
                 </div>
               ) : null}

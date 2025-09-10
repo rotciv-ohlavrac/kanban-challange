@@ -105,6 +105,23 @@ export class GitHubService {
     return newPR;
   }
 
+  // Listar branches do repositório (simulação)
+  async getBranches(): Promise<string[]> {
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    // Simular branches comuns de um projeto
+    return [
+      "main",
+      "develop",
+      "feature/user-authentication",
+      "feature/dashboard-improvements",
+      "feature/api-integration",
+      "bugfix/login-issue",
+      "bugfix/performance-optimization",
+      "release/v1.2.0",
+    ];
+  }
+
   // Atualizar status do PR
   async updatePRStatus(
     number: number,

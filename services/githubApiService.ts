@@ -186,6 +186,29 @@ export class GitHubApiService {
     }
   }
 
+  // Listar branches do repositório
+  async getBranches(): Promise<string[]> {
+    try {
+      const url = `${this.baseUrl}/repos/${this.config.owner}/${this.config.repo}/branches`;
+
+      const response = await fetch(url, {
+        headers: this.getHeaders(),
+      });
+
+      if (!response.ok) {
+        console.warn("Erro ao buscar branches, usando mock");
+        return ["main", "develop", "feature/example"];
+      }
+
+      const branches = await response.json();
+      return branches.map((branch: any) => branch.name);
+    } catch (error) {
+      console.warn("Erro ao buscar branches:", error);
+      // Retornar branches padrão em caso de erro
+      return ["main", "develop", "feature/example"];
+    }
+  }
+
   // Verificar rate limit atual
   async checkRateLimit(): Promise<{
     remaining: number;

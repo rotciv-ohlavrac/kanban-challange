@@ -15,12 +15,17 @@ export const usePRAutomation = ({
 }: UsePRAutomationProps) => {
   const t = useTranslations("task");
   const tCommon = useTranslations("common");
-  const githubService = new UnifiedGitHubService();
+  const githubService = UnifiedGitHubService.getInstance();
   const { showConfirmation, confirmationState } = useConfirmation();
 
   useEffect(() => {
-    // Só executar se houver tarefas para evitar chamadas desnecessárias
-    if (tasks.length === 0) return;
+    // Só executar se houver tarefas com PRs para evitar chamadas desnecessárias
+    const tasksWithPRs = tasks.filter((task) => task.githubPR);
+    if (tasksWithPRs.length === 0) return;
+
+    console.log(
+      `🔄 Configurando polling para ${tasksWithPRs.length} PR(s) - a cada 10 minutos`
+    );
 
     const checkPRStatuses = async () => {
       // Filtrar tarefas que têm PRs vinculados
@@ -97,8 +102,8 @@ export const usePRAutomation = ({
       }
     };
 
-    // Verificar status dos PRs a cada 30 segundos (em produção seria menos frequente)
-    const interval = setInterval(checkPRStatuses, 30000);
+    // Verificar status dos PRs a cada 10 minutos para evitar rate limiting
+    const interval = setInterval(checkPRStatuses, 10 * 60 * 1000); // 10 minutos
 
     // Verificação inicial
     checkPRStatuses();

@@ -184,9 +184,33 @@ export const KanbanProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const updateTask = useCallback((id: string, updates: Partial<Task>) => {
     setTasks((prev) =>
-      prev.map((task) =>
-        task.id === id ? { ...task, ...updates, updatedAt: new Date() } : task
-      )
+      prev.map((task) => {
+        if (task.id === id) {
+          const finalUpdates = { ...updates, updatedAt: new Date() };
+
+          // Handle completedAt logic if status is being updated
+          if (updates.status !== undefined) {
+            if (
+              updates.status === TaskStatus.COMPLETED &&
+              task.status !== TaskStatus.COMPLETED
+            ) {
+              // Only set completedAt if it's not already provided in updates
+              if (!updates.completedAt) {
+                finalUpdates.completedAt = new Date();
+              }
+            } else if (updates.status !== TaskStatus.COMPLETED) {
+              // Clear completedAt if task is moved away from completed
+              // Only if completedAt is not explicitly provided in updates
+              if (updates.completedAt === undefined) {
+                finalUpdates.completedAt = undefined;
+              }
+            }
+          }
+
+          return { ...task, ...finalUpdates };
+        }
+        return task;
+      })
     );
   }, []);
 
@@ -196,11 +220,28 @@ export const KanbanProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const moveTask = useCallback((taskId: string, newStatus: TaskStatus) => {
     setTasks((prev) =>
-      prev.map((task) =>
-        task.id === taskId
-          ? { ...task, status: newStatus, updatedAt: new Date() }
-          : task
-      )
+      prev.map((task) => {
+        if (task.id === taskId) {
+          const updates: Partial<Task> = {
+            status: newStatus,
+            updatedAt: new Date(),
+          };
+
+          // Set completedAt when task is moved to completed
+          if (
+            newStatus === TaskStatus.COMPLETED &&
+            task.status !== TaskStatus.COMPLETED
+          ) {
+            updates.completedAt = new Date();
+          } else if (newStatus !== TaskStatus.COMPLETED) {
+            // Clear completedAt if task is moved away from completed
+            updates.completedAt = undefined;
+          }
+
+          return { ...task, ...updates };
+        }
+        return task;
+      })
     );
   }, []);
 
