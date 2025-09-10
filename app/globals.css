@@ -1,26 +1,192 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Screen reader only utility class */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.sr-only.focus:focus,
+.sr-only:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: 0.5rem 1rem;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .border {
+    border-width: 2px;
+  }
+
+  .shadow-sm,
+  .shadow-md,
+  .shadow-lg {
+    box-shadow: 0 0 0 2px currentColor;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Improved contrast for better accessibility */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea,
+select {
+  @apply text-gray-900 bg-white border-gray-400;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+textarea:focus,
+select:focus {
+  @apply border-blue-600 ring-2 ring-blue-500 ring-opacity-50;
+}
+
+/* Placeholder text with better contrast */
+input::placeholder,
+textarea::placeholder {
+  @apply text-gray-600;
+}
+
+/* Better contrast for disabled elements */
+input:disabled,
+textarea:disabled,
+select:disabled,
+button:disabled {
+  @apply bg-gray-100 text-gray-600 border-gray-300 cursor-not-allowed;
+}
+
+/* Improved button contrast */
+button {
+  @apply font-medium;
+}
+
+/* Better link contrast */
+a {
+  @apply text-blue-700;
+}
+
+a:hover {
+  @apply text-blue-800;
+}
+
+/* Improved text contrast on colored backgrounds */
+.bg-blue-50 {
+  @apply text-gray-900;
+}
+
+.bg-gray-50 {
+  @apply text-gray-900;
+}
+
+.bg-red-50 {
+  @apply text-gray-900;
+}
+
+.bg-yellow-50 {
+  @apply text-gray-900;
+}
+
+.bg-green-50 {
+  @apply text-gray-900;
+}
+
+/* Better contrast for selected/active states */
+.bg-blue-100 {
+  @apply text-gray-900;
+}
+
+.bg-gray-100 {
+  @apply text-gray-900;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Focus visible styles */
+.focus\:outline-none:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Custom focus styles for better accessibility */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid #3b82f6;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.5);
+}
+
+/* Enhanced focus for interactive elements */
+[role="button"]:focus-visible,
+[role="option"]:focus-visible,
+[role="menuitem"]:focus-visible,
+[role="tab"]:focus-visible {
+  outline: 3px solid #3b82f6;
+  outline-offset: 2px;
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+/* Focus styles for drag handles */
+[draggable]:focus-visible {
+  outline: 3px solid #059669;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 1px rgba(5, 150, 105, 0.5);
+}
+
+/* Focus for links */
+a:focus-visible {
+  outline: 3px solid #3b82f6;
+  outline-offset: 2px;
+  text-decoration: underline;
+}
+
+/* Focus for form elements with better contrast */
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #1d4ed8 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3) !important;
+}
+
+/* Line clamp utilities */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }

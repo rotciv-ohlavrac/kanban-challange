@@ -1,36 +1,137 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Kanban Board - AnaHealth Challenge
 
-## Getting Started
+Um Kanban board moderno e responsivo construído com React.js, Next.js e TypeScript, inspirado no design do Twilio Paste.
 
-First, run the development server:
+## 🚀 Funcionalidades
+
+- ✅ **Drag & Drop**: Arraste tarefas entre as colunas (Backlog, Em andamento, Concluída)
+- 🔍 **Busca**: Busque tarefas por título em tempo real
+- ✏️ **Edição**: Edite título, descrição e status das tarefas
+- ➕ **Criação**: Adicione novas tarefas facilmente
+- 🗑️ **Exclusão**: Remova tarefas com confirmação
+- 📱 **Responsivo**: Interface adaptável para diferentes tamanhos de tela
+- 🎨 **Design Moderno**: Interface limpa inspirada no Twilio Paste
+
+## 🛠️ Tecnologias Utilizadas
+
+- **React.js 19.1.0** - Framework principal
+- **Next.js 15.5.2** - Framework React com SSR
+- **TypeScript** - Tipagem estática
+- **Tailwind CSS** - Estilização
+- **@dnd-kit** - Biblioteca de drag & drop
+- **UUID** - Geração de IDs únicos
+
+## 📦 Instalação
+
+1. Clone o repositório:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <url-do-repositorio>
+cd anahealth-challange
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Instale as dependências:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. Execute o projeto em modo de desenvolvimento:
 
-## Learn More
+```bash
+pnpm dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+4. Abra [http://localhost:3000](http://localhost:3000) no seu navegador.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🎯 Como Usar
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Criando uma Nova Tarefa
 
-## Deploy on Vercel
+1. Clique no botão "Nova Tarefa" no canto superior direito
+2. Preencha o título e descrição
+3. Selecione o status inicial
+4. Clique em "Salvar"
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Editando uma Tarefa
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Clique em qualquer tarefa para abrir o modal de edição
+2. Modifique o título, descrição ou status
+3. Clique em "Salvar" para aplicar as mudanças
+
+### Movendo Tarefas
+
+1. Arraste qualquer tarefa para uma nova coluna
+2. A tarefa será automaticamente movida e o status atualizado
+
+### Buscando Tarefas
+
+1. Use a barra de busca no topo da página
+2. Digite parte do título da tarefa
+3. Os resultados são filtrados em tempo real
+
+## 🏗️ Estrutura do Projeto
+
+```
+anahealth-challange/
+├── app/
+│   └── page.tsx              # Página principal
+├── components/
+│   ├── KanbanBoard.tsx       # Componente principal do Kanban
+│   ├── Column.tsx            # Componente de coluna
+│   ├── TaskCard.tsx          # Componente de card de tarefa
+│   ├── TaskModal.tsx         # Modal de edição/criação
+│   └── SearchBar.tsx         # Barra de busca
+├── contexts/
+│   └── KanbanContext.tsx     # Contexto para gerenciamento de estado
+├── types/
+│   └── index.ts              # Definições de tipos TypeScript
+└── README.md
+```
+
+## 🎨 Design System
+
+O projeto utiliza uma paleta de cores inspirada no Twilio Paste:
+
+- **Backlog**: Tons de cinza/slate
+- **Em andamento**: Tons de azul
+- **Concluída**: Tons de verde/emerald
+
+## 📱 Responsividade
+
+O Kanban é totalmente responsivo e funciona bem em:
+
+- Desktop (1200px+)
+- Tablet (768px - 1199px)
+- Mobile (até 767px)
+
+## 🚀 Scripts Disponíveis
+
+- `pnpm dev` - Executa o projeto em modo de desenvolvimento
+- `pnpm build` - Gera build de produção
+- `pnpm start` - Executa o build de produção
+- `pnpm lint` - Executa o linter
+- `pnpm format` - Formata o código
+
+## 📝 Notas de Desenvolvimento
+
+- O projeto utiliza Context API para gerenciamento de estado
+- Drag & drop implementado com @dnd-kit para melhor performance
+- Todas as operações são otimizadas com useCallback
+- Interface totalmente acessível com ARIA labels
+- Código totalmente tipado com TypeScript
+
+## 🎯 Requisitos Atendidos
+
+✅ Feito em React.js  
+✅ Drag & drop de tarefas entre as colunas  
+✅ Busca por título  
+✅ Descrição em cada card  
+✅ Editar título, descrição e status  
+✅ Mudança de status move o card automaticamente  
+✅ Layout inspirado no Trello  
+✅ Tema Twilio Paste aplicado
+
+---
+
+Desenvolvido para o desafio de programação da AnaHealth 🏥

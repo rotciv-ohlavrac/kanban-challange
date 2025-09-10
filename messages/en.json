@@ -1,0 +1,159 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "search": "Search",
+    "clear": "Clear",
+    "create": "Create",
+    "update": "Update",
+    "confirm": "Confirm"
+  },
+  "kanban": {
+    "title": "Kanban Board",
+    "newTask": "New Task",
+    "syncPRs": "Sync PRs",
+    "syncPRsTooltip": "Synchronize PR status",
+    "searchPlaceholder": "Search tasks by title...",
+    "noResults": "No tasks found",
+    "columns": {
+      "backlog": "Backlog",
+      "inProgress": "In Progress",
+      "completed": "Completed"
+    },
+    "taskCount": {
+      "zero": "No tasks",
+      "one": "{{count}} task",
+      "other": "{{count}} tasks"
+    },
+    "emptyColumn": "No tasks in this column"
+  },
+  "task": {
+    "title": "Title",
+    "description": "Description",
+    "status": "Status",
+    "createdAt": "Created at",
+    "updatedAt": "Updated at",
+    "titlePlaceholder": "Enter task title",
+    "descriptionPlaceholder": "Enter task description",
+    "editTask": "Edit Task",
+    "newTask": "New Task",
+    "deleteConfirm": "Are you sure you want to delete this task?",
+    "statusSuggestion": "The PR status suggests moving this task to \"{{status}}\". Would you like to apply this suggestion?",
+    "prStatusChange": "PR #{{number}} was {{status}}.\n\nWould you like to move the task \"{{title}}\" to \"{{newStatus}}\"?",
+    "prStatusTypes": {
+      "merged": "merged",
+      "closed": "closed",
+      "open": "opened"
+    }
+  },
+  "pr": {
+    "title": "Linked Pull Request",
+    "searchPlaceholder": "Search PRs by title, number or branch...",
+    "newPR": "New PR",
+    "createPR": "Create New PR",
+    "titlePlaceholder": "PR title",
+    "branchPlaceholder": "Branch name (e.g., feature/new-feature)",
+    "viewOnGitHub": "View on GitHub",
+    "remove": "Remove",
+    "noPRs": "No PRs available",
+    "noPRsFound": "No PRs found",
+    "loadingPRs": "Loading PRs...",
+    "status": {
+      "open": "Open",
+      "merged": "Merged",
+      "closed": "Closed"
+    }
+  },
+  "github": {
+    "realAPI": "Real GitHub API",
+    "mockData": "Mock Data",
+    "connectedTo": "Connected to real repository. PR links will work correctly.",
+    "configureRepo": "To use real PRs, configure your repository in",
+    "syncComplete": "{{count}} PR(s) were updated!",
+    "syncNoChanges": "All PRs are up to date!"
+  },
+  "accessibility": {
+    "kanbanBoard": "Kanban Board",
+    "column": "Column {{title}}",
+    "task": "Task: {{title}}",
+    "taskCard": "Task card",
+    "searchInput": "Task search field",
+    "searchResults": "Search results",
+    "modal": "Modal",
+    "closeModal": "Close modal",
+    "dragHandle": "Drag handle",
+    "dropZone": "Drop zone",
+    "prSelector": "Pull Request selector",
+    "languageSelector": "Language selector",
+    "skipToContent": "Skip to content",
+    "navigation": "Navigation",
+    "mainContent": "Main content",
+    "sidebar": "Sidebar"
+  },
+  "keyboard": {
+    "shortcuts": "Keyboard Shortcuts",
+    "newTask": "N - New task",
+    "search": "/ - Search",
+    "escape": "Esc - Close modal/search",
+    "enter": "Enter - Select/Confirm",
+    "arrowKeys": "Arrow keys - Navigate",
+    "tab": "Tab - Next element",
+    "shiftTab": "Shift+Tab - Previous element",
+    "space": "Space - Activate/Select"
+  },
+  "sprint": {
+    "title": "Sprints",
+    "current": "Current Sprint",
+    "new": "New Sprint",
+    "create": "Create Sprint",
+    "edit": "Edit Sprint",
+    "name": "Sprint Name",
+    "description": "Description",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "workingDays": "Working Days",
+    "status": "Status",
+    "planning": "Planning",
+    "active": "Active",
+    "completed": "Completed",
+    "totalPoints": "Total Points",
+    "completedPoints": "Completed Points",
+    "progress": "Progress",
+    "burndown": "Burndown Chart",
+    "noSprints": "No sprints created",
+    "selectSprint": "Select Sprint",
+    "defaultDuration": "Default duration: 5 working days"
+  },
+  "user": {
+    "title": "Users",
+    "assignedTo": "Assigned to",
+    "assign": "Assign",
+    "unassign": "Unassign",
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "avatar": "Avatar",
+    "roles": {
+      "developer": "Developer",
+      "designer": "Designer",
+      "pm": "Product Manager",
+      "qa": "QA"
+    },
+    "noUsers": "No users registered",
+    "selectUser": "Select user"
+  },
+  "storyPoints": {
+    "title": "Story Points",
+    "points": "points",
+    "estimate": "Estimate",
+    "total": "Total",
+    "remaining": "Remaining",
+    "completed": "Completed"
+  }
+}
