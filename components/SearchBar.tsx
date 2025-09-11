@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { cva } from "class-variance-authority";
 import { useKanban } from "../contexts/KanbanContext";
 import { Task } from "../types";
 import { useScreenReaderAnnouncements } from "../hooks/useKeyboardNavigation";
@@ -9,6 +10,23 @@ import { useScreenReaderAnnouncements } from "../hooks/useKeyboardNavigation";
 interface SearchBarProps {
   onTaskSelect: (task: Task) => void;
 }
+
+// Task Status Variants
+const taskStatusStyles = cva(
+  ["px-2", "py-1", "text-xs", "font-medium", "rounded-full"],
+  {
+    variants: {
+      status: {
+        backlog: ["bg-slate-100", "text-slate-800"],
+        "in-progress": ["bg-blue-100", "text-blue-800"],
+        completed: ["bg-emerald-100", "text-emerald-800"],
+      },
+    },
+    defaultVariants: {
+      status: "backlog",
+    },
+  }
+);
 
 export const SearchBar: React.FC<SearchBarProps> = ({ onTaskSelect }) => {
   const t = useTranslations("kanban");
@@ -122,17 +140,12 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onTaskSelect }) => {
     };
   }, []);
 
-  const getStatusColor = (status: Task["status"]) => {
-    switch (status) {
-      case "backlog":
-        return "bg-slate-100 text-slate-800";
-      case "in-progress":
-        return "bg-blue-100 text-blue-800";
-      case "completed":
-        return "bg-emerald-100 text-emerald-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
+  const getStatusVariant = (status: Task["status"]) => {
+    return status === "backlog" ||
+      status === "in-progress" ||
+      status === "completed"
+      ? status
+      : "backlog";
   };
 
   const getStatusLabel = (status: Task["status"]) => {
@@ -146,6 +159,58 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onTaskSelect }) => {
       default:
         return status;
     }
+  };
+
+  // Render functions for better performance
+  const renderTasksList = () => {
+    return filteredTasks.map((task, index) => (
+      <li
+        key={task.id}
+        id={`search-result-${index}`}
+        role="option"
+        aria-selected={index === selectedIndex}
+        onClick={() => handleTaskSelect(task)}
+        className={`px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors ${
+          index === selectedIndex
+            ? "bg-blue-100 border-blue-200 text-gray-900"
+            : "hover:bg-gray-50 text-gray-900"
+        }`}
+      >
+        <div className="flex items-start justify-between">
+          <div className="flex-1 min-w-0">
+            <h4 className="text-sm font-medium text-gray-900 truncate">
+              {task.title}
+            </h4>
+            <p className="text-xs text-gray-600 mt-1 line-clamp-2">
+              {task.description}
+            </p>
+          </div>
+          <span
+            className={taskStatusStyles({
+              status: getStatusVariant(task.status),
+            })}
+          >
+            {getStatusLabel(task.status)}
+          </span>
+        </div>
+      </li>
+    ));
+  };
+
+  const renderSuggestions = () => {
+    if (!showSuggestions) return null;
+
+    return (
+      <ul
+        ref={listRef}
+        id="search-results"
+        role="listbox"
+        aria-label={tA11y("searchResults")}
+        className="absolute z-50 w-full max-w-md mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+      >
+        {renderTasksList()}
+      </ul>
+    );
   };
 
   return (
@@ -211,49 +276,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onTaskSelect }) => {
         )}
       </div>
 
-      {/* Dropdown de sugestões */}
-      {showSuggestions && (
-        <ul
-          ref={listRef}
-          id="search-results"
-          role="listbox"
-          aria-label={tA11y("searchResults")}
-          className="absolute z-50 w-full max-w-md mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto"
-        >
-          {filteredTasks.map((task, index) => (
-            <li
-              key={task.id}
-              id={`search-result-${index}`}
-              role="option"
-              aria-selected={index === selectedIndex}
-              onClick={() => handleTaskSelect(task)}
-              className={`px-4 py-3 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors ${
-                index === selectedIndex
-                  ? "bg-blue-100 border-blue-200 text-gray-900"
-                  : "hover:bg-gray-50 text-gray-900"
-              }`}
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-sm font-medium text-gray-900 truncate">
-                    {task.title}
-                  </h4>
-                  <p className="text-xs text-gray-600 mt-1 line-clamp-2">
-                    {task.description}
-                  </p>
-                </div>
-                <span
-                  className={`ml-2 px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(
-                    task.status
-                  )}`}
-                >
-                  {getStatusLabel(task.status)}
-                </span>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+      {renderSuggestions()}
     </div>
   );
 };

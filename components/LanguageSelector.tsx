@@ -3,6 +3,7 @@
 import React, { useState, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, usePathname } from "@/i18n/routing";
+import { cva } from "class-variance-authority";
 import {
   useKeyboardNavigation,
   useFocusManagement,
@@ -12,6 +13,59 @@ const languages = [
   { code: "pt", name: "Português", flag: "🇧🇷" },
   { code: "en", name: "English", flag: "🇺🇸" },
 ];
+
+// Language Option Variants
+const languageOptionStyles = cva(
+  [
+    "w-full",
+    "flex",
+    "items-center",
+    "gap-2",
+    "px-3",
+    "py-2",
+    "text-sm",
+    "text-left",
+    "hover:bg-gray-50",
+    "focus:bg-gray-50",
+    "focus:outline-none",
+  ],
+  {
+    variants: {
+      isSelected: {
+        true: ["bg-blue-50", "text-blue-700", "font-medium"],
+        false: ["text-gray-700"],
+      },
+      isHighlighted: {
+        true: ["bg-gray-50"],
+        false: [],
+      },
+    },
+    compoundVariants: [
+      {
+        isSelected: true,
+        isHighlighted: true,
+        class: ["bg-blue-50"], // Selected state takes precedence
+      },
+    ],
+    defaultVariants: {
+      isSelected: false,
+      isHighlighted: false,
+    },
+  }
+);
+
+// Dropdown Arrow Variants
+const dropdownArrowStyles = cva(["w-4", "h-4", "transition-transform"], {
+  variants: {
+    isOpen: {
+      true: ["rotate-180"],
+      false: [],
+    },
+  },
+  defaultVariants: {
+    isOpen: false,
+  },
+});
 
 export const LanguageSelector: React.FC = () => {
   const t = useTranslations("accessibility");
@@ -80,6 +134,60 @@ export const LanguageSelector: React.FC = () => {
     }
   };
 
+  // Render functions for better performance
+  const renderCheckIcon = (isSelected: boolean) => {
+    if (!isSelected) return null;
+
+    return (
+      <svg
+        className="w-4 h-4 ml-auto text-blue-600"
+        fill="currentColor"
+        viewBox="0 0 20 20"
+      >
+        <path
+          fillRule="evenodd"
+          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+          clipRule="evenodd"
+        />
+      </svg>
+    );
+  };
+
+  const renderLanguageOptions = () => {
+    return languages.map((language, index) => {
+      const isSelected = language.code === locale;
+      const isHighlighted = index === selectedIndex;
+
+      return (
+        <button
+          key={language.code}
+          role="option"
+          aria-selected={isSelected}
+          onClick={() => handleLanguageChange(language.code)}
+          className={languageOptionStyles({ isSelected, isHighlighted })}
+        >
+          <span className="text-base">{language.flag}</span>
+          <span>{language.name}</span>
+          {renderCheckIcon(isSelected)}
+        </button>
+      );
+    });
+  };
+
+  const renderDropdown = () => {
+    if (!isOpen) return null;
+
+    return (
+      <div
+        role="listbox"
+        aria-label={t("languageSelector")}
+        className="absolute right-0 z-50 mt-1 bg-white border border-gray-200 rounded-md shadow-lg min-w-full"
+      >
+        {renderLanguageOptions()}
+      </div>
+    );
+  };
+
   return (
     <div
       ref={containerRef as React.RefObject<HTMLDivElement>}
@@ -98,9 +206,7 @@ export const LanguageSelector: React.FC = () => {
         <span className="text-base">{currentLanguage.flag}</span>
         <span>{currentLanguage.name}</span>
         <svg
-          className={`w-4 h-4 transition-transform ${
-            isOpen ? "rotate-180" : ""
-          }`}
+          className={dropdownArrowStyles({ isOpen })}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -114,45 +220,7 @@ export const LanguageSelector: React.FC = () => {
         </svg>
       </button>
 
-      {isOpen && (
-        <div
-          role="listbox"
-          aria-label={t("languageSelector")}
-          className="absolute right-0 z-50 mt-1 bg-white border border-gray-200 rounded-md shadow-lg min-w-full"
-        >
-          {languages.map((language, index) => (
-            <button
-              key={language.code}
-              role="option"
-              aria-selected={language.code === locale}
-              onClick={() => handleLanguageChange(language.code)}
-              className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-left hover:bg-gray-50 focus:bg-gray-50 focus:outline-none ${
-                index === selectedIndex ? "bg-gray-50" : ""
-              } ${
-                language.code === locale
-                  ? "bg-blue-50 text-blue-700 font-medium"
-                  : "text-gray-700"
-              }`}
-            >
-              <span className="text-base">{language.flag}</span>
-              <span>{language.name}</span>
-              {language.code === locale && (
-                <svg
-                  className="w-4 h-4 ml-auto text-blue-600"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              )}
-            </button>
-          ))}
-        </div>
-      )}
+      {renderDropdown()}
     </div>
   );
 };

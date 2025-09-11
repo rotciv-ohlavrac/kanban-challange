@@ -38,6 +38,49 @@ export const StoryPointsSelector: React.FC<StoryPointsSelectorProps> = ({
     return "text-lg font-bold";
   };
 
+  // Render functions for better performance
+  const renderPointsOptions = () => {
+    return STORY_POINTS_OPTIONS.map((points) => (
+      <button
+        key={points}
+        role="option"
+        aria-selected={value === points}
+        onClick={() => handlePointSelect(points)}
+        className={`
+          w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium
+          ${getPointsColor(points)}
+          ${
+            value === points
+              ? "ring-2 ring-blue-500 ring-offset-1"
+              : "hover:ring-1 hover:ring-gray-300"
+          }
+          focus:outline-none focus:ring-2 focus:ring-blue-500
+          transition-all duration-200
+        `}
+      >
+        {points || "?"}
+      </button>
+    ));
+  };
+
+  const renderDropdown = () => {
+    if (!isOpen || disabled) return null;
+
+    return (
+      <>
+        <div
+          role="listbox"
+          aria-label={t("estimate")}
+          className="absolute z-50 top-full left-1/2 transform -translate-x-1/2 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg p-2 grid grid-cols-4 gap-1 min-w-max"
+        >
+          {renderPointsOptions()}
+        </div>
+        {/* Click outside to close */}
+        <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
+      </>
+    );
+  };
+
   return (
     <div className="relative">
       <button
@@ -60,40 +103,7 @@ export const StoryPointsSelector: React.FC<StoryPointsSelectorProps> = ({
         {value || "?"}
       </button>
 
-      {isOpen && !disabled && (
-        <div
-          role="listbox"
-          aria-label={t("estimate")}
-          className="absolute z-50 top-full left-1/2 transform -translate-x-1/2 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg p-2 grid grid-cols-4 gap-1 min-w-max"
-        >
-          {STORY_POINTS_OPTIONS.map((points) => (
-            <button
-              key={points}
-              role="option"
-              aria-selected={value === points}
-              onClick={() => handlePointSelect(points)}
-              className={`
-                w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium
-                ${getPointsColor(points)}
-                ${
-                  value === points
-                    ? "ring-2 ring-blue-500 ring-offset-1"
-                    : "hover:ring-1 hover:ring-gray-300"
-                }
-                focus:outline-none focus:ring-2 focus:ring-blue-500
-                transition-all duration-200
-              `}
-            >
-              {points || "?"}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* Click outside to close */}
-      {isOpen && (
-        <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
-      )}
+      {renderDropdown()}
     </div>
   );
 };

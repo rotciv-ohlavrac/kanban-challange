@@ -67,6 +67,13 @@ export interface User {
   email: string;
   avatar?: string;
   role: "developer" | "designer" | "pm" | "qa";
+  // Campos específicos do GitHub
+  login?: string;
+  bio?: string | null;
+  company?: string | null;
+  location?: string | null;
+  githubUrl?: string;
+  contributions?: number;
 }
 
 export interface Sprint {

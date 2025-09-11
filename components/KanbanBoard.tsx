@@ -191,6 +191,93 @@ export const KanbanBoard: React.FC = () => {
   const inProgressTasks = getTasksByStatus(TaskStatus.IN_PROGRESS);
   const completedTasks = getTasksByStatus(TaskStatus.COMPLETED);
 
+  // Render functions for better performance
+  const renderCurrentSprintInfo = () => {
+    if (!currentSprint) return null;
+
+    return (
+      <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+        <div className="flex justify-between items-center">
+          <div>
+            <h3 className="font-semibold text-gray-900">
+              {currentSprint.name}
+            </h3>
+            <p className="text-sm text-gray-600">{currentSprint.description}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-sm text-gray-500">
+              {new Date(currentSprint.startDate).toLocaleDateString("pt-BR")} -{" "}
+              {new Date(currentSprint.endDate).toLocaleDateString("pt-BR")}
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
+              {currentSprint.status === "active" ? "🟢 Ativo" : "⏸️ Pausado"}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderDragOverlay = () => {
+    if (!activeTask) return null;
+
+    return (
+      <div className="rotate-3 opacity-90 scale-105 shadow-2xl">
+        <TaskCard task={activeTask} onClick={() => {}} />
+      </div>
+    );
+  };
+
+  const renderKanbanContent = () => {
+    if (showSprintManager) return <SprintManager />;
+
+    return (
+      <>
+        <SearchBar onTaskSelect={handleTaskSelectFromSearch} />
+
+        {renderCurrentSprintInfo()}
+
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+        >
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Column
+              title={t("columns.backlog")}
+              status={TaskStatus.BACKLOG}
+              tasks={backlogTasks}
+              onTaskClick={handleTaskClick}
+            />
+            <Column
+              title={t("columns.inProgress")}
+              status={TaskStatus.IN_PROGRESS}
+              tasks={inProgressTasks}
+              onTaskClick={handleTaskClick}
+            />
+            <Column
+              title={t("columns.completed")}
+              status={TaskStatus.COMPLETED}
+              tasks={completedTasks}
+              onTaskClick={handleTaskClick}
+            />
+          </div>
+
+          <DragOverlay>{renderDragOverlay()}</DragOverlay>
+        </DndContext>
+
+        <TaskModal
+          task={selectedTask}
+          isOpen={isModalOpen}
+          onClose={handleModalClose}
+          onSave={handleTaskSave}
+          onDelete={handleTaskDelete}
+        />
+      </>
+    );
+  };
+
   return (
     <div className="p-6">
       <header className="mb-6">
@@ -228,113 +315,12 @@ export const KanbanBoard: React.FC = () => {
 
       <GitHubStatus />
 
-      {/* Sprint Manager */}
-      {showSprintManager ? (
-        <SprintManager />
-      ) : (
-        <>
-          <SearchBar onTaskSelect={handleTaskSelectFromSearch} />
-
-          {/* Current Sprint Info */}
-          {currentSprint && (
-            <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h3 className="font-semibold text-gray-900">
-                    {currentSprint.name}
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    {currentSprint.description}
-                  </p>
-                </div>
-                <div className="text-right text-sm">
-                  <div className="text-gray-500">
-                    {(() => {
-                      const sprintTasks = tasks.filter(
-                        (task) => task.sprintId === currentSprint.id
-                      );
-                      const totalPoints = sprintTasks.reduce(
-                        (sum, task) => sum + task.storyPoints,
-                        0
-                      );
-                      const completedPoints = sprintTasks
-                        .filter((task) => task.status === "completed")
-                        .reduce((sum, task) => sum + task.storyPoints, 0);
-                      return `${completedPoints}/${totalPoints} pontos`;
-                    })()}
-                  </div>
-                  <div
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      currentSprint.status === "active"
-                        ? "bg-green-100 text-green-800"
-                        : currentSprint.status === "completed"
-                        ? "bg-blue-100 text-blue-800"
-                        : "bg-gray-100 text-gray-800"
-                    }`}
-                  >
-                    {currentSprint.status}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
-          >
-            <div
-              className="flex gap-6 overflow-x-auto"
-              role="main"
-              aria-label={t("title")}
-            >
-              <Column
-                title={t("columns.backlog")}
-                status={TaskStatus.BACKLOG}
-                tasks={backlogTasks}
-                onTaskClick={handleTaskClick}
-              />
-              <Column
-                title={t("columns.inProgress")}
-                status={TaskStatus.IN_PROGRESS}
-                tasks={inProgressTasks}
-                onTaskClick={handleTaskClick}
-              />
-              <Column
-                title={t("columns.completed")}
-                status={TaskStatus.COMPLETED}
-                tasks={completedTasks}
-                onTaskClick={handleTaskClick}
-              />
-            </div>
-
-            <DragOverlay>
-              {activeTask ? (
-                <div className="rotate-3 opacity-90 scale-105 shadow-2xl">
-                  <TaskCard task={activeTask} onClick={() => {}} />
-                </div>
-              ) : null}
-            </DragOverlay>
-          </DndContext>
-
-          <TaskModal
-            task={selectedTask}
-            isOpen={isModalOpen}
-            onClose={handleModalClose}
-            onSave={handleTaskSave}
-            onDelete={handleTaskDelete}
-          />
-        </>
-      )}
+      {renderKanbanContent()}
 
       <ConfirmationModal
         isOpen={confirmationState.isOpen}
         title={confirmationState.title}
         message={confirmationState.message}
-        confirmText={confirmationState.confirmText}
-        cancelText={confirmationState.cancelText}
         type={confirmationState.type}
         onConfirm={confirmationState.onConfirm}
         onCancel={confirmationState.onCancel}

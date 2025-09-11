@@ -2,6 +2,7 @@
 
 import React, { useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { cva } from "class-variance-authority";
 import { useFocusManagement } from "../hooks/useKeyboardNavigation";
 
 interface ConfirmationModalProps {
@@ -14,6 +15,83 @@ interface ConfirmationModalProps {
   onCancel: () => void;
   type?: "danger" | "warning" | "info";
 }
+
+// Enum para os emojis dos tipos de modal
+enum ModalEmojis {
+  danger = "⚠️",
+  warning = "⚠️",
+  info = "ℹ️",
+}
+
+// Confirmation Modal Button Variants
+const confirmationButtonStyles = cva(
+  [
+    "px-4",
+    "py-2",
+    "text-sm",
+    "font-medium",
+    "text-white",
+    "rounded-md",
+    "focus:outline-none",
+    "focus:ring-2",
+    "focus:ring-offset-2",
+  ],
+  {
+    variants: {
+      type: {
+        danger: ["bg-red-600", "hover:bg-red-700", "focus:ring-red-500"],
+        warning: [
+          "bg-yellow-600",
+          "hover:bg-yellow-700",
+          "focus:ring-yellow-500",
+        ],
+        info: ["bg-blue-600", "hover:bg-blue-700", "focus:ring-blue-500"],
+      },
+    },
+    defaultVariants: {
+      type: "info",
+    },
+  }
+);
+
+// Modal Icon Background Variants
+const modalIconBackgroundStyles = cva(
+  [
+    "flex-shrink-0",
+    "w-10",
+    "h-10",
+    "rounded-full",
+    "flex",
+    "items-center",
+    "justify-center",
+  ],
+  {
+    variants: {
+      type: {
+        danger: ["bg-red-100"],
+        warning: ["bg-yellow-100"],
+        info: ["bg-blue-100"],
+      },
+    },
+    defaultVariants: {
+      type: "info",
+    },
+  }
+);
+
+// Modal Icon Text Variants
+const modalIconTextStyles = cva(["text-lg"], {
+  variants: {
+    type: {
+      danger: ["text-red-600"],
+      warning: ["text-yellow-600"],
+      info: ["text-blue-600"],
+    },
+  },
+  defaultVariants: {
+    type: "info",
+  },
+});
 
 export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   isOpen,
@@ -46,34 +124,16 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
     }
   };
 
-  const getTypeStyles = () => {
-    switch (type) {
-      case "danger":
-        return {
-          icon: "⚠️",
-          confirmButton: "bg-red-600 hover:bg-red-700 focus:ring-red-500",
-          iconBg: "bg-red-100",
-          iconColor: "text-red-600",
-        };
-      case "warning":
-        return {
-          icon: "⚠️",
-          confirmButton:
-            "bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-500",
-          iconBg: "bg-yellow-100",
-          iconColor: "text-yellow-600",
-        };
-      default:
-        return {
-          icon: "ℹ️",
-          confirmButton: "bg-blue-600 hover:bg-blue-700 focus:ring-blue-500",
-          iconBg: "bg-blue-100",
-          iconColor: "text-blue-600",
-        };
-    }
+  // Render functions for better performance
+  const renderModalIcon = () => {
+    return (
+      <div className={modalIconBackgroundStyles({ type })}>
+        <span className={modalIconTextStyles({ type })} aria-hidden="true">
+          {ModalEmojis[type]}
+        </span>
+      </div>
+    );
   };
-
-  const typeStyles = getTypeStyles();
 
   if (!isOpen) return null;
 
@@ -89,16 +149,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         onKeyDown={handleKeyDown}
       >
         <div className="flex items-start space-x-4">
-          <div
-            className={`flex-shrink-0 w-10 h-10 rounded-full ${typeStyles.iconBg} flex items-center justify-center`}
-          >
-            <span
-              className={`text-lg ${typeStyles.iconColor}`}
-              aria-hidden="true"
-            >
-              {typeStyles.icon}
-            </span>
-          </div>
+          {renderModalIcon()}
 
           <div className="flex-1 min-w-0">
             <h3
@@ -125,7 +176,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
           </button>
           <button
             onClick={onConfirm}
-            className={`px-4 py-2 text-sm font-medium text-white rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 ${typeStyles.confirmButton}`}
+            className={confirmationButtonStyles({ type })}
           >
             {defaultConfirmText}
           </button>
