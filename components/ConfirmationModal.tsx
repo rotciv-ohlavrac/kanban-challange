@@ -4,7 +4,7 @@ import React, { useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { cva } from "class-variance-authority";
 import { useFocusManagement } from "../hooks/useKeyboardNavigation";
-
+// unnecessary comment
 interface ConfirmationModalProps {
   isOpen: boolean;
   title: string;
